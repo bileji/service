@@ -29,7 +29,7 @@ class Token
 
     /**
      * 存token
-     * @param array $tokenInfo ['userId' => 123456]
+     * @param array $tokenInfo ['user_id' => 123456]
      * @param string $platform
      * @return bool|string
      */
@@ -37,7 +37,7 @@ class Token
     {
         $tokenName = Helper::randString(static::TOKEN_NAME_LENGTH);
         $tokenInfo['platform'] = $platform;
-        $tokenInfo['loginTime'] = Helper::microTime();
+        $tokenInfo['sign_in_time'] = Helper::microTime();
 
         if ($platform == Platform::WEB) {
             $prefix = static::APP_TOKEN_REDIS_PREFIX;
@@ -47,7 +47,7 @@ class Token
             $signInLimit = static::APP_ALLOW_SIGN_IN_USER_NUM;
         }
 
-        $userTokenName = $prefix . $tokenInfo['userId'];
+        $userTokenName = $prefix . $tokenInfo['user_id'];
 
         if (Redis::lpush($userTokenName, $prefix . $tokenName)) {
             if (Redis::hmset($prefix . $tokenName, $tokenInfo) && Redis::expire($prefix . $tokenName, static::TOKEN_LIVE_TIME)) {

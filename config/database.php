@@ -3,6 +3,7 @@ return [
     // 默认为 PDO::FETCH_BOTH
     'fetch' => PDO::FETCH_CLASS,
     'default' => 'default',
+    'migrations' => 'migrations',
     'connections' => [
         'default' => [
             'driver' => 'mysql',

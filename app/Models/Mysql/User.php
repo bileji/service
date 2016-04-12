@@ -9,17 +9,18 @@ class User extends Base
 
     // 输出格式
     public $casts = [
-        'id'             => 'int',
-        'cellphone'      => 'int',
-        'username'       => 'string',
-        'password'       => 'string',
-        'salt'           => 'string',
-        'sex'            => 'int',
-        'avatar'         => 'string',
-        'email'          => 'string',
-        'signUpIp'       => 'string',
-        'signUpPlatform' => 'int',
-        'insertTime'     => 'int',
-        'modifyTime'     => 'int',
+        'id'               => 'int',
+        'cellphone'        => 'int',
+        'username'         => 'string',
+        'password'         => 'string',
+        'salt'             => 'string',
+        'sex'              => 'int',
+        'avatar'           => 'string',
+        'email'            => 'string',
+        'sign_up_ip'       => 'string',
+        'sign_up_platform' => 'int',
+        'created_at'       => 'string',
+        'updated_at'       => 'string',
+        'deleted_at'       => 'string',
     ];
 }

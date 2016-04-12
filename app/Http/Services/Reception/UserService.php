@@ -51,13 +51,13 @@ class UserService
             return Response::out(Status::USER_NOT_EXIST);
         }
 
-//        if (Helper::encryptPassword($password, $user['salt']) != $user['password']) {
-//            return Response::out(Status::USER_PASSWORD_ERROR);
-//        }
+        if (Helper::encryptPassword($password, $user['salt']) != $user['password']) {
+            return Response::out(Status::USER_PASSWORD_ERROR);
+        }
 
-        $tokenName = $this->token->saveToken(['userId' => $user['id']], $platform);
+        $tokenName = $this->token->saveToken(['user_id' => $user['id']], $platform);
 
-        return Response::out(Status::SUCCESS, ['tokenName' => $tokenName]);
+        return Response::out(Status::SUCCESS, ['token_name' => $tokenName]);
     }
 
     public function signOut($tokenName, $platform = Platform::WEB)
