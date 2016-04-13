@@ -1,6 +1,6 @@
 <?php
 /**
- * this source file is Token.php
+ * this source file is TokenRedis.php
  *
  * author: shuc <shuc324@gmail.com>
  * time:   2016-04-11 17-39
@@ -11,7 +11,7 @@ use App\Enums\Platform;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\Redis;
 
-class Token
+class TokenRedis
 {
     # token名长度
     const TOKEN_NAME_LENGTH = 12;
@@ -29,8 +29,8 @@ class Token
 
     /**
      * 存token
-     * @param array $tokenInfo ['user_id' => 123456]
-     * @param string $platform
+     * @param array $tokenInfo ['user_id' => 123456] token信息
+     * @param int $platform 平台
      * @return bool|string
      */
     public function saveToken(array $tokenInfo, $platform = Platform::WEB)
@@ -60,5 +60,18 @@ class Token
             }
         }
         return false;
+    }
+
+    /**
+     * 移除token
+     * @param string $tokenName token名
+     * @param int $userId 用户名
+     * @param int $platform 平台
+     * @return bool
+     */
+    public function removeToken($tokenName, $userId, $platform = Platform::WEB)
+    {
+        $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
+        return Redis::del($prefix . $tokenName) ? (boolean)Redis::lrem($prefix . $userId, 0, $prefix . $tokenName) : false;
     }
 }

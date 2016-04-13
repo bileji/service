@@ -70,4 +70,5 @@ class Helper
     {
         return mb_substr(str_repeat(md5(time()), $length / 32 + 1), 0, $length);
     }
+
 }

@@ -10,28 +10,62 @@ namespace App\Http\Services\Reception;
 use App\Enums\Platform;
 use App\Enums\UsernameType;
 use App\Models\Mysql\User;
-use App\Models\Redis\Token;
+use App\Models\Redis\TokenRedis;
 use App\Utils\Helper;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
 
 class UserService
 {
-    public function __construct(Token $token)
+    const USER_SALT_LENGTH = 6;
+
+    public function __construct(TokenRedis $tokenRedis)
     {
-        $this->token = $token;
+        $this->tokenRedis = $tokenRedis;
     }
 
-    public function signUp()
+    /**
+     * 用户注册
+     * @param string|int $username 用户名
+     * @param string $password 密码
+     * @param array $extension 扩展信息[sing_up_platform => 1 ...]
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function signUp($username, $password, $extension = [])
     {
+        $userInfo = [];
+        switch(Helper::checkUsernameType($username)) {
+            case UsernameType::PHONE:
+                $userInfo['cellphone'] = $username;
+                break;
+            case UsernameType::EMAIL:
+                $userInfo['email'] = $username;
+                break;
+            default:
+                $userInfo['username'] = $username;
+                break;
+        }
+        $userInfo['salt'] = Helper::randString(static::USER_SALT_LENGTH);
+        $userInfo['password'] = Helper::encryptPassword($password, $userInfo['salt']);
 
+        $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::CONTRAST);
+
+        // 成功新增用户
+        if (($user = User::create($userInfo)->toArray()) && !empty($user)) {
+            $userInfo['user_id'] = $user['id'];
+            $platform = isset($userInfo['sing_up_platform']) ? $userInfo['sing_up_platform'] : Platform::UNKNOWN;
+            $tokenName = $this->tokenRedis->saveToken($userInfo, $platform);
+            return Response::out(Status::SUCCESS, ['token_name' => $tokenName]);
+        }
+
+        return Response::out(Status::FAILED);
     }
 
     /**
      * 用户登录
-     * @param $username
-     * @param $password
-     * @param string $platform
+     * @param string $username 用户名(name|phone|email)
+     * @param string $password 密码
+     * @param int $platform
      * @return \App\Http\Responses\Response
      */
     public function signIn($username, $password, $platform = Platform::WEB)
@@ -55,13 +89,19 @@ class UserService
             return Response::out(Status::USER_PASSWORD_ERROR);
         }
 
-        $tokenName = $this->token->saveToken(['user_id' => $user['id']], $platform);
+        $tokenName = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
 
         return Response::out(Status::SUCCESS, ['token_name' => $tokenName]);
     }
 
-    public function signOut($tokenName, $platform = Platform::WEB)
+    /**
+     * @param string $tokenName token名
+     * @param int $userId 用户ID
+     * @param int $platform
+     * @return bool
+     */
+    public function signOut($tokenName, $userId, $platform = Platform::WEB)
     {
-
+        return $this->tokenRedis->removeToken($tokenName, $userId, $platform);
     }
 }

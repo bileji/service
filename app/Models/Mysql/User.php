@@ -7,8 +7,21 @@ class User extends Base
 
     public $guarded = 'id';
 
+    // 对照
+    const CONTRAST = [
+        'cellphone'        => 'int',
+        'username'         => 'string',
+        'password'         => 'string',
+        'salt'             => 'string',
+        'sex'              => 'int',
+        'avatar'           => 'string',
+        'email'            => 'string',
+        'sign_up_ip'       => 'string',
+        'sign_up_platform' => 'int',
+    ];
+
     // 输出格式
-    public $casts = [
+    protected $casts = [
         'id'               => 'int',
         'cellphone'        => 'int',
         'username'         => 'string',
