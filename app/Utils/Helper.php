@@ -32,16 +32,15 @@ class Helper
      */
     public static function attachService($service)
     {
-        $rpcService = new RpcService();
+        $rpcRequest = file_get_contents('php://input');
+        $rpcService = new RpcService($rpcRequest);
         try {
+            Log::info('rpc request service with: ' . $rpcRequest);
             $rpcService->attach($service);
             return $rpcService->execute();
         } catch (\Exception $e) {
-            Log::emerg($e->getMessage());
-            $rpcService->attach(function() {
-                return Response::out(Status::FAILED);
-            });
-            return $rpcService->execute();
+            Log::emerg('service throw exception: ' . $e->getMessage());
+            return $rpcService->getResponse(['result' => Response::out(Status::FAILED)], $rpcRequest);
         }
     }
 

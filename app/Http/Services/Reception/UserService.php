@@ -49,7 +49,7 @@ class UserService
         $userInfo['salt'] = Str::random(static::USER_SALT_LENGTH);
         $userInfo['password'] = Helper::encryptPassword($password, $userInfo['salt']);
 
-        $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::CONTRAST);
+        $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::$contrast);
 
         // 成功新增用户
         if (($user = User::create($userInfo)->toArray()) && !empty($user)) {

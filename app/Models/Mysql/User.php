@@ -8,7 +8,7 @@ class User extends Base
     public $guarded = 'id';
 
     // 对照
-    const CONTRAST = [
+    public static $contrast = [
         'cellphone'        => 'int',
         'username'         => 'string',
         'password'         => 'string',
