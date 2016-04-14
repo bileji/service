@@ -1,6 +1,6 @@
 <?php
 /**
- * this source file is TokenRedis.php
+ * this source file is Token.php
  *
  * author: shuc <shuc324@gmail.com>
  * time:   2016-04-11 17-39
@@ -9,13 +9,13 @@ namespace App\Models\Redis;
 
 use App\Enums\Platform;
 use App\Utils\Helper;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Redis;
 
-class TokenRedis
+class Token
 {
     # token名长度
-    const TOKEN_NAME_LENGTH = 12;
+    const TOKEN_NAME_LENGTH = 6;
 
     # 平台同时登录人数限制
     const APP_ALLOW_SIGN_IN_USER_NUM = 1;
@@ -27,6 +27,11 @@ class TokenRedis
 
     # token生存时间
     const TOKEN_LIVE_TIME = 2592000;
+
+    private function getTokenTrueName($userId, $tokenName, $prefix)
+    {
+        return str_replace('user', $userId, $prefix) . $tokenName;
+    }
 
     /**
      * 存token
@@ -49,13 +54,14 @@ class TokenRedis
         }
 
         $userTokenName = $prefix . $tokenInfo['user_id'];
+        $tokenTrueName = $this->getTokenTrueName($tokenInfo['user_id'], $tokenName, $prefix);
 
-        if (Redis::lpush($userTokenName, $prefix . $tokenName)) {
-            if (Redis::hmset($prefix . $tokenName, $tokenInfo) && Redis::expire($prefix . $tokenName, static::TOKEN_LIVE_TIME)) {
+        if (Redis::lpush($userTokenName, $tokenTrueName)) {
+            if (Redis::hmset($tokenTrueName, $tokenInfo) && Redis::expire($tokenTrueName, static::TOKEN_LIVE_TIME)) {
                 # 平台同时登录人数限制
                 if (Redis::llen($userTokenName) > $signInLimit) {
                     $popTokenName = Redis::rpop($userTokenName);
-                    Redis::del($prefix . $popTokenName);
+                    Redis::del($this->getTokenTrueName($tokenInfo['user_id'], $popTokenName, $prefix));
                 }
                 return $tokenName;
             }
@@ -73,6 +79,7 @@ class TokenRedis
     public function removeToken($tokenName, $userId, $platform = Platform::WEB)
     {
         $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
-        return Redis::del($prefix . $tokenName) ? (boolean)Redis::lrem($prefix . $userId, 0, $prefix . $tokenName) : false;
+        $tokenTrueName = $this->getTokenTrueName($userId, $tokenName, $prefix);
+        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($prefix . $userId, 0, $tokenTrueName) : false;
     }
 }
