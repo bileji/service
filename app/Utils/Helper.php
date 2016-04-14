@@ -7,9 +7,11 @@
  */
 namespace App\Utils;
 
+use App\Enums\Platform;
 use App\Enums\UsernameType;
 use App\Http\Responses\Response;
 use App\Http\Responses\Status;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use JsonRPC\Server as RpcService;
 
@@ -70,5 +72,28 @@ class Helper
     {
         empty($password) && $password = $salt;
         return md5(md5(trim($password)) . $salt);
+    }
+
+    /**
+     * token 加密
+     * @param string $tokenName token名
+     * @param int $userId 用户id
+     * @param string $platform 平台
+     * @return mixed
+     */
+    public static function tokenEncrypt($tokenName, $userId, $platform = Platform::WEB)
+    {
+        return Crypt::encrypt(implode('|', [$userId, $tokenName, $platform]));
+    }
+
+    /**
+     * token 解密
+     * @param string $token token
+     * @return array
+     */
+    public static function tokenDecrypt($token)
+    {
+        list($userId, $tokenName, $platform) = explode('|', Crypt::decrypt($token));
+        return ['user_id' => $userId, 'token_name' => $tokenName, 'platform' => $platform];
     }
 }

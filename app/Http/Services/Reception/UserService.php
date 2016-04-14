@@ -11,10 +11,10 @@ use App\Utils\Helper;
 use App\Enums\Platform;
 use App\Enums\UsernameType;
 use App\Models\Mysql\User;
-use App\Models\Redis\Token as TokenRedis;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
 use Illuminate\Support\Str;
+use App\Models\Redis\Token as TokenRedis;
 
 class UserService
 {
@@ -53,9 +53,9 @@ class UserService
 
         // 成功新增用户
         if (($user = User::create($userInfo)->toArray()) && !empty($user)) {
-            $platform = isset($userInfo['sing_up_platform']) ? $userInfo['sing_up_platform'] : Platform::UNKNOWN;
-            $tokenName = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
-            return Response::out(Status::SUCCESS, ['token_name' => $tokenName]);
+            $platform = isset($userInfo['sign_up_platform']) ? $userInfo['sign_up_platform'] : Platform::UNKNOWN;
+            $token = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
+            return Response::out(Status::SUCCESS, ['token' => $token]);
         }
 
         return Response::out(Status::FAILED);
@@ -65,7 +65,7 @@ class UserService
      * 用户登录
      * @param string $username 用户名(name|phone|email)
      * @param string $password 密码
-     * @param int $platform
+     * @param string $platform
      * @return \App\Http\Responses\Response
      */
     public function signIn($username, $password, $platform = Platform::WEB)
@@ -89,19 +89,18 @@ class UserService
             return Response::out(Status::USER_PASSWORD_ERROR);
         }
 
-        $tokenName = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
+        $token = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
 
-        return Response::out(Status::SUCCESS, ['token_name' => $tokenName]);
+        return Response::out(Status::SUCCESS, ['token' => $token]);
     }
 
     /**
-     * @param string $tokenName token名
-     * @param int $userId 用户ID
-     * @param int $platform
+     * 用户退出
+     * @param string $token token
      * @return bool
      */
-    public function signOut($tokenName, $userId, $platform = Platform::WEB)
+    public function signOut($token)
     {
-        return $this->tokenRedis->removeToken($tokenName, $userId, $platform);
+        return $this->tokenRedis->removeToken($token);
     }
 }

@@ -9,11 +9,9 @@ namespace App\Enums;
 
 class Platform
 {
-    const UNKNOWN = 0;
+    const UNKNOWN = 'unknown';
 
-    const WEB = 1;
+    const WEB = 'web';
 
-    const IPHONE = 2;
-
-    const ANDROID = 3;
+    const APP = 'app';
 }

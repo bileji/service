@@ -36,7 +36,7 @@ class Token
     /**
      * 存token
      * @param array $tokenInfo ['user_id' => 123456] token信息
-     * @param int $platform 平台
+     * @param string $platform 平台
      * @return bool|string
      */
     public function saveToken(array $tokenInfo, $platform = Platform::WEB)
@@ -46,10 +46,10 @@ class Token
         $tokenInfo['sign_in_time'] = Helper::microTime();
 
         if ($platform == Platform::WEB) {
-            $prefix = static::APP_TOKEN_REDIS_PREFIX;
+            $prefix = static::WEB_TOKEN_REDIS_PREFIX;
             $signInLimit = static::WEB_ALLOW_SIGN_IN_USER_NUM;
         } else {
-            $prefix = static::WEB_TOKEN_REDIS_PREFIX;
+            $prefix = static::APP_TOKEN_REDIS_PREFIX;
             $signInLimit = static::APP_ALLOW_SIGN_IN_USER_NUM;
         }
 
@@ -63,7 +63,7 @@ class Token
                     $popTokenName = Redis::rpop($userTokenName);
                     Redis::del($this->getTokenTrueName($tokenInfo['user_id'], $popTokenName, $prefix));
                 }
-                return $tokenName;
+                return Helper::tokenEncrypt($tokenName, $tokenInfo['user_id'], $platform);
             }
         }
         return false;
@@ -71,15 +71,14 @@ class Token
 
     /**
      * 移除token
-     * @param string $tokenName token名
-     * @param int $userId 用户名
-     * @param int $platform 平台
+     * @param string $token token名
      * @return bool
      */
-    public function removeToken($tokenName, $userId, $platform = Platform::WEB)
+    public function removeToken($token)
     {
-        $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
-        $tokenTrueName = $this->getTokenTrueName($userId, $tokenName, $prefix);
-        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($prefix . $userId, 0, $tokenTrueName) : false;
+        $tokenInfo = Helper::tokenDecrypt($token);
+        $prefix = $tokenInfo['platform'] == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
+        $tokenTrueName = $this->getTokenTrueName($tokenInfo['user_id'], $tokenInfo['token_name'], $prefix);
+        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($prefix . $tokenInfo['user_id'], 0, $tokenTrueName) : false;
     }
 }
