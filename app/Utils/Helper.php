@@ -11,6 +11,7 @@ use App\Enums\Platform;
 use App\Enums\UsernameType;
 use App\Http\Responses\Response;
 use App\Http\Responses\Status;
+use App\Models\Redis\Token;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use JsonRPC\Server as RpcService;
@@ -30,6 +31,7 @@ class Helper
      * 解密token
      * @param array $request
      * @return string
+     * @throws \Exception
      */
     private function analysisRequest($request)
     {
@@ -37,15 +39,28 @@ class Helper
         if (!empty($request['params'])) {
             foreach ($request['params'] as $key => $value) {
                 if (($key == 'token' || $key === 0) && mb_strlen($value, '8bit') >= 216) {
-                    try {
-                        if ($key === 0) {
-                            $request['params'][$key] = static::tokenDecrypt($value);
-                        } else if ($key == 'token') {
-                            $request['params']['payload'] = static::tokenDecrypt($value);
-                            unset($request['params']['token']);
-                        }
-                    } catch (\Exception $e) {
+                    // 解析$token或解析第一个参数
+                    if ($key === 0 || $key == 'token') {
+                        try {
+                            $tokenInfo = static::tokenDecrypt($value);
+                        } catch (\Exception $e) {
 
+                        }
+                        if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'])) {
+                            $tokenRedis = new Token();
+                            $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
+                            if (!empty($payload)) {
+                                if ($key === 0) {
+                                    $request['params'][$key] = $payload;
+                                } else {
+                                    $request['params']['payload'] = $payload;
+                                    unset($request['params']['token']);
+                                }
+                            } else {
+                                $otherPayload = $tokenRedis->getLastTokenPayload($tokenInfo['user_id'], $tokenInfo['platform']);
+                                throw new \Exception(json_encode($otherPayload));
+                            }
+                        }
                     }
                 }
             }
@@ -61,10 +76,23 @@ class Helper
      */
     public static function attachService($service)
     {
-        $rpcRequest = (new static)->analysisRequest(file_get_contents('php://input'));
-        $rpcService = new RpcService($rpcRequest);
+        $rpcRequest = file_get_contents('php://input');
+        Log::info('rpc request service with: ' . $rpcRequest);
         try {
-            Log::info('rpc request service with: ' . $rpcRequest);
+            $rpcRequest = (new static)->analysisRequest($rpcRequest);
+            $rpcService = new RpcService($rpcRequest);
+        } catch (\Exception $e) {
+            $rpcService = new RpcService();
+            $payload = json_decode($e->getMessage(), true);
+            if (!empty($payload)) {
+                $response = Response::out(Status::TOKE_SIGN_IN_OTHER_DEVICE);
+            } else {
+                $response = Response::out(Status::TOKEN_OUT_OF_TIME);
+            }
+            return $rpcService->getResponse(['result' => $response], json_decode($rpcRequest, true));
+        }
+        Log::info('rpc request service with: ' . $rpcRequest);
+        try {
             $rpcService->attach($service);
             return $rpcService->execute();
         } catch (\Exception $e) {

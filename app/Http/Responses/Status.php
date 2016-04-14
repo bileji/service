@@ -17,15 +17,22 @@ class Status
     const USER_NOT_EXIST = 100000;
     const USER_PASSWORD_ERROR = 100010;
 
+    const TOKEN_OUT_OF_TIME = 200000;
+    const TOKE_SIGN_IN_OTHER_DEVICE = 200010;
+
     public static $errorMessage = [
         # 系统相关
-        self::FAILED              => '系统错误',
-        self::SUCCESS             => '执行成功',
-        self::PARAM_ERROR         => '参数错误',
-        self::BUSINESS_ERROR      => '业务错误',
+        self::FAILED                    => '系统错误',
+        self::SUCCESS                   => '执行成功',
+        self::PARAM_ERROR               => '参数错误',
+        self::BUSINESS_ERROR            => '业务错误',
 
         # 用户相关
-        self::USER_NOT_EXIST      => '用户不存在',
-        self::USER_PASSWORD_ERROR => '登录密码错误',
+        self::USER_NOT_EXIST            => '用户不存在',
+        self::USER_PASSWORD_ERROR       => '登录密码错误',
+
+        # Token相关
+        self::TOKEN_OUT_OF_TIME         => '无效的登录信息',
+        self::TOKE_SIGN_IN_OTHER_DEVICE => '其它设备登录',
     ];
 }

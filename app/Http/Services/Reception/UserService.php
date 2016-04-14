@@ -13,6 +13,7 @@ use App\Enums\UsernameType;
 use App\Models\Mysql\User;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Redis\Token as TokenRedis;
 
