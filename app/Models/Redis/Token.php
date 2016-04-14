@@ -71,14 +71,15 @@ class Token
 
     /**
      * 移除token
-     * @param string $token token名
+     * @param string $tokenName token名
+     * @param int $userId 用户id
+     * @param string $platform 平台
      * @return bool
      */
-    public function removeToken($token)
+    public function removeToken($tokenName, $userId, $platform = Platform::WEB)
     {
-        $tokenInfo = Helper::tokenDecrypt($token);
-        $prefix = $tokenInfo['platform'] == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
-        $tokenTrueName = $this->getTokenTrueName($tokenInfo['user_id'], $tokenInfo['token_name'], $prefix);
-        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($prefix . $tokenInfo['user_id'], 0, $tokenTrueName) : false;
+        $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
+        $tokenTrueName = $this->getTokenTrueName($userId, $tokenName, $prefix);
+        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($prefix . $userId, 0, $tokenTrueName) : false;
     }
 }

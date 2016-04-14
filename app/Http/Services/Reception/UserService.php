@@ -44,7 +44,6 @@ class UserService
                 break;
             default:
                 $userInfo['username'] = $username;
-                break;
         }
         $userInfo['salt'] = Str::random(static::USER_SALT_LENGTH);
         $userInfo['password'] = Helper::encryptPassword($password, $userInfo['salt']);
@@ -96,11 +95,11 @@ class UserService
 
     /**
      * 用户退出
-     * @param string $token token
+     * @param array $payload token信息
      * @return bool
      */
-    public function signOut($token)
+    public function signOut($payload)
     {
-        return $this->tokenRedis->removeToken($token);
+        return $this->tokenRedis->removeToken($payload['token_name'], $payload['user_id'], $payload['platform']);
     }
 }

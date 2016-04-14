@@ -27,6 +27,33 @@ class Helper
     }
 
     /**
+     * 解密token
+     * @param array $request
+     * @return string
+     */
+    private function analysisRequest($request)
+    {
+        $request = json_decode($request, true);
+        if (!empty($request['params'])) {
+            foreach ($request['params'] as $key => $value) {
+                if (($key == 'token' || $key === 0) && mb_strlen($value, '8bit') >= 216) {
+                    try {
+                        if ($key === 0) {
+                            $request['params'][$key] = static::tokenDecrypt($value);
+                        } else if ($key == 'token') {
+                            $request['params']['payload'] = static::tokenDecrypt($value);
+                            unset($request['params']['token']);
+                        }
+                    } catch (\Exception $e) {
+
+                    }
+                }
+            }
+        }
+        return json_encode($request);
+    }
+
+    /**
      * 绑定服务
      * @param $service
      * @return string
@@ -34,7 +61,7 @@ class Helper
      */
     public static function attachService($service)
     {
-        $rpcRequest = file_get_contents('php://input');
+        $rpcRequest = (new static)->analysisRequest(file_get_contents('php://input'));
         $rpcService = new RpcService($rpcRequest);
         try {
             Log::info('rpc request service with: ' . $rpcRequest);
