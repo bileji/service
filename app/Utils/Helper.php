@@ -8,6 +8,9 @@
 namespace App\Utils;
 
 use App\Enums\UsernameType;
+use App\Http\Responses\Response;
+use App\Http\Responses\Status;
+use Illuminate\Support\Facades\Log;
 use JsonRPC\Server as RpcService;
 
 class Helper
@@ -30,8 +33,16 @@ class Helper
     public static function attachService($service)
     {
         $rpcService = new RpcService();
-        $rpcService->attach($service);
-        return $rpcService->execute();
+        try {
+            $rpcService->attach($service);
+            return $rpcService->execute();
+        } catch (\Exception $e) {
+            Log::emerg($e->getMessage());
+            $rpcService->attach(function() {
+                return Response::out(Status::FAILED);
+            });
+            return $rpcService->execute();
+        }
     }
 
     /**
