@@ -60,15 +60,4 @@ class Helper
     {
         return md5(md5(trim($password)) . $salt);
     }
-
-    /**
-     * 随机字符串
-     * @param $length
-     * @return string
-     */
-    public static function randString($length)
-    {
-        return mb_substr(str_repeat(md5(time()), $length / 32 + 1), 0, $length);
-    }
-
 }

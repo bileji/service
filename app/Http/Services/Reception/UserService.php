@@ -14,6 +14,7 @@ use App\Models\Redis\TokenRedis;
 use App\Utils\Helper;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -45,7 +46,7 @@ class UserService
                 $userInfo['username'] = $username;
                 break;
         }
-        $userInfo['salt'] = Helper::randString(static::USER_SALT_LENGTH);
+        $userInfo['salt'] = Str::random(static::USER_SALT_LENGTH);
         $userInfo['password'] = Helper::encryptPassword($password, $userInfo['salt']);
 
         $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::CONTRAST);

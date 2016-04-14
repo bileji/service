@@ -10,6 +10,7 @@ namespace App\Models\Redis;
 use App\Enums\Platform;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class TokenRedis
 {
@@ -35,7 +36,7 @@ class TokenRedis
      */
     public function saveToken(array $tokenInfo, $platform = Platform::WEB)
     {
-        $tokenName = Helper::randString(static::TOKEN_NAME_LENGTH);
+        $tokenName = Str::random(static::TOKEN_NAME_LENGTH);
         $tokenInfo['platform'] = $platform;
         $tokenInfo['sign_in_time'] = Helper::microTime();
 
