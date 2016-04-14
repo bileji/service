@@ -39,8 +39,8 @@ class Helper
             $rpcService->attach($service);
             return $rpcService->execute();
         } catch (\Exception $e) {
-            Log::emerg('service throw exception: ' . $e->getMessage());
-            return $rpcService->getResponse(['result' => Response::out(Status::FAILED)], $rpcRequest);
+            Log::emerg('service throw exception: ' . $e->getMessage() . ', file: ' . $e->getFile() . ' +' . $e->getLine());
+            return $rpcService->getResponse(['result' => Response::out(Status::FAILED)], json_decode($rpcRequest, true));
         }
     }
 
@@ -62,12 +62,13 @@ class Helper
 
     /**
      * 密码加密
-     * @param $password
-     * @param $salt
+     * @param string|null $password
+     * @param string $salt
      * @return string
      */
-    public static function encryptPassword($password, $salt)
+    public static function encryptPassword($password = null, $salt)
     {
+        empty($password) && $password = $salt;
         return md5(md5(trim($password)) . $salt);
     }
 }

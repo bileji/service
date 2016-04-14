@@ -7,11 +7,11 @@
  */
 namespace App\Http\Services\Reception;
 
+use App\Utils\Helper;
 use App\Enums\Platform;
 use App\Enums\UsernameType;
 use App\Models\Mysql\User;
 use App\Models\Redis\TokenRedis;
-use App\Utils\Helper;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
 use Illuminate\Support\Str;
@@ -52,7 +52,7 @@ class UserService
         $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::$contrast);
 
         // 成功新增用户
-        if (($user = User::create($userInfo)->toArray()) && !empty($user)) {
+        if (($user = User::create($userInfo)) && !empty($user)) {
             $userInfo['user_id'] = $user['id'];
             $platform = isset($userInfo['sing_up_platform']) ? $userInfo['sing_up_platform'] : Platform::UNKNOWN;
             $tokenName = $this->tokenRedis->saveToken($userInfo, $platform);

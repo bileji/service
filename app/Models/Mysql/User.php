@@ -5,7 +5,7 @@ class User extends Base
 {
     public $table = 'user';
 
-    public $guarded = 'id';
+    public $guarded = ['id'];
 
     // 对照
     public static $contrast = [

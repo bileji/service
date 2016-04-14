@@ -16,11 +16,11 @@ class CreateUserTable extends Migration
         Schema::create('user', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('username', 15)->default('')->comment('用户名');
+            $table->string('username', 15)->nullable()->comment('用户名');
 
-            $table->integer('cellphone')->unsigned()->default(0)->comment('手机号');
+            $table->integer('cellphone')->nullable()->unsigned()->comment('手机号');
 
-            $table->string('email', 25)->default('')->comment('邮箱');
+            $table->string('email', 25)->nullable()->comment('邮箱');
 
             $table->string('password', 32)->default('')->comment('密码');
 

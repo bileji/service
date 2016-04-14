@@ -9,7 +9,7 @@ class Base extends Model
 
     protected $modifyTime;
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $autoTime = true;
 
