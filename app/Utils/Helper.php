@@ -18,6 +18,10 @@ use JsonRPC\Server as RpcService;
 
 class Helper
 {
+    const PARAM_STRICT = 100;
+
+    const TOKEN_PAYLOAD = 200;
+
     /**
      * 时间(耗秒级)
      * @return mixed
@@ -38,30 +42,24 @@ class Helper
         $request = json_decode($request, true);
         if (!empty($request['params'])) {
             foreach ($request['params'] as $key => $value) {
-                if (($key == 'token' || $key === 0) && mb_strlen($value, '8bit') >= 216) {
-                    // 解析$token或解析第一个参数
-                    if ($key === 0 || $key == 'token') {
-                        try {
-                            $tokenInfo = static::tokenDecrypt($value);
-                        } catch (\Exception $e) {
-
-                        }
-                        if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'])) {
-                            $tokenRedis = new Token();
-                            $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
-                            if (!empty($payload)) {
-                                if ($key === 0) {
-                                    $request['params'][$key] = $payload;
-                                } else {
-                                    $request['params']['payload'] = $payload;
-                                    unset($request['params']['token']);
-                                }
-                            } else {
-                                $otherPayload = $tokenRedis->getLastTokenPayload($tokenInfo['user_id'], $tokenInfo['platform']);
-                                throw new \Exception(json_encode($otherPayload));
-                            }
+                if (is_integer($key)) {
+                    throw new \Exception(json_encode([]), static::PARAM_STRICT);
+                }
+                // 尝试解析$token
+                if ($key === 'token' && is_string($value) && $value == base64_encode(base64_decode($value))) {
+                    $tokenInfo = static::tokenDecrypt($value);
+                    if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'])) {
+                        $tokenRedis = new Token();
+                        $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
+                        if (!empty($payload)) {
+                            $request['params'][$key] = $payload;
+                        } else {
+                            $otherPayload = $tokenRedis->getLastTokenPayload($tokenInfo['user_id'], $tokenInfo['platform']);
+                            throw new \Exception(json_encode($otherPayload), static::TOKEN_PAYLOAD);
                         }
                     }
+                } else if ($key === 'token' && is_string($value) && $value != base64_encode(base64_decode($value))) {
+                    throw new \Exception(json_encode([]), static::TOKEN_PAYLOAD);
                 }
             }
         }
@@ -84,14 +82,17 @@ class Helper
         } catch (\Exception $e) {
             $rpcService = new RpcService();
             $payload = json_decode($e->getMessage(), true);
-            if (!empty($payload)) {
-                $response = Response::out(Status::TOKE_SIGN_IN_OTHER_DEVICE);
+            if ($e->getCode() == static::PARAM_STRICT) {
+                $response = Response::out(Status::RPC_PARAM_STRICT);
             } else {
-                $response = Response::out(Status::TOKEN_OUT_OF_TIME);
+                if (!empty($payload)) {
+                    $response = Response::out(Status::TOKE_SIGN_IN_OTHER_DEVICE);
+                } else {
+                    $response = Response::out(Status::TOKEN_OUT_OF_TIME);
+                }
             }
             return $rpcService->getResponse(['result' => $response], json_decode($rpcRequest, true));
         }
-        Log::info('rpc request service with: ' . $rpcRequest);
         try {
             $rpcService->attach($service);
             return $rpcService->execute();

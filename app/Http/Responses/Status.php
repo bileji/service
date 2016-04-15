@@ -20,6 +20,8 @@ class Status
     const TOKEN_OUT_OF_TIME = 200000;
     const TOKE_SIGN_IN_OTHER_DEVICE = 200010;
 
+    const RPC_PARAM_STRICT = 300000;
+
     public static $errorMessage = [
         # 系统相关
         self::FAILED                    => '系统错误',
@@ -34,5 +36,8 @@ class Status
         # Token相关
         self::TOKEN_OUT_OF_TIME         => '无效的登录信息',
         self::TOKE_SIGN_IN_OTHER_DEVICE => '其它设备登录',
+
+        # Rpc相关
+        self::RPC_PARAM_STRICT => '请使用严格传参模式',
     ];
 }

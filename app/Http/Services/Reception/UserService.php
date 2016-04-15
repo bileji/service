@@ -96,11 +96,11 @@ class UserService
 
     /**
      * 用户退出
-     * @param array $payload token信息
+     * @param array $token token信息
      * @return bool
      */
-    public function signOut($payload)
+    public function signOut(array $token)
     {
-        return $this->tokenRedis->removeToken($payload['token_name'], $payload['user_id'], $payload['platform']);
+        return $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
     }
 }
