@@ -49,7 +49,7 @@ class Helper
                 // 尝试解析$token
                 if ($key === 'token' && is_string($value) && $value == base64_encode(base64_decode($value))) {
                     $tokenInfo = static::tokenDecrypt($value);
-                    if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'])) {
+                    if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'] && !empty($tokenInfo['token_version']))) {
                         $tokenRedis = new Token();
                         $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
                         if (!empty($payload)) {
