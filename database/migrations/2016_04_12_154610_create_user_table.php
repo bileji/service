@@ -22,6 +22,12 @@ class CreateUserTable extends Migration
 
             $table->string('email', 25)->nullable()->comment('邮箱');
 
+            $table->string('open_id', 32)->nullable()->comment('OpenId');
+
+            $table->tinyInteger('open_type')->default(0)->commnet('Open类型: 0 unknown 1 QQ 2 Sina');
+
+            $table->string('nickname')->default('')->comment('昵称');
+
             $table->string('password', 32)->default('')->comment('密码');
 
             $table->string('salt', 8)->default('')->comment('盐值');
@@ -46,6 +52,8 @@ class CreateUserTable extends Migration
             $table->unique('username');
 
             $table->unique('cellphone');
+
+            $table->primary(['open_id', 'open_type']);
         });
     }
 
