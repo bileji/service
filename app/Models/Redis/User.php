@@ -8,6 +8,7 @@
 namespace App\Models\Redis;
 
 use App\Enums\Version;
+use App\Models\Mysql\Area;
 use Illuminate\Support\Facades\Redis;
 
 class User
@@ -31,7 +32,7 @@ class User
         # 头像
         'avatar'    => '',
         # 地区
-        'area'      => '',
+        'area_name' => '',
         # 地区id
         'area_id'   => 0,
     ];
@@ -60,8 +61,9 @@ class User
         if (!empty($user)) {
             $user['user_id'] = $user['id'];
             $user['origin'] = $user['open_type'];
-            # todo 整理用户信息
-
+            if ($area = current(Area::select('name')->whereId($user['area_id'])->get())->toArray()) {
+                $user['area_name'] = $area['name'];
+            }
             $userCache = array_intersect_key($user, static::CACHE_FIELDS);
             return Redis::hmset($this->getUserCacheKey($user), $userCache) ? $userCache : false;
         }
