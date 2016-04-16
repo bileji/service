@@ -24,7 +24,7 @@ class CreateUserTable extends Migration
 
             $table->string('open_id', 32)->nullable()->comment('OpenId');
 
-            $table->tinyInteger('open_type')->default(0)->commnet('Open类型: 0 unknown 1 QQ 2 Sina');
+            $table->tinyInteger('open_type')->default(0)->comment('Open类型: 0 unknown 1 QQ 2 Sina');
 
             $table->string('nickname')->default('')->comment('昵称');
 
