@@ -9,6 +9,7 @@ namespace App\Utils;
 
 use App\Enums\Platform;
 use App\Enums\UsernameType;
+use App\Enums\Version;
 use App\Http\Responses\Response;
 use App\Http\Responses\Status;
 use App\Models\Redis\Token;
@@ -135,11 +136,12 @@ class Helper
      * @param string $tokenName token名
      * @param int $userId 用户id
      * @param string $platform 平台
+     * @param string $tokenVersion 认证版本
      * @return mixed
      */
-    public static function tokenEncrypt($tokenName, $userId, $platform = Platform::WEB)
+    public static function tokenEncrypt($tokenName, $userId, $platform = Platform::WEB, $tokenVersion = Version::TOKEN_VERSION)
     {
-        return Crypt::encrypt(implode('|', [$userId, $tokenName, $platform]));
+        return Crypt::encrypt(implode('|', [$userId, $tokenName, $platform, $tokenVersion]));
     }
 
     /**
@@ -149,7 +151,7 @@ class Helper
      */
     public static function tokenDecrypt($token)
     {
-        list($userId, $tokenName, $platform) = explode('|', Crypt::decrypt($token));
-        return ['user_id' => $userId, 'token_name' => $tokenName, 'platform' => $platform];
+        list($userId, $tokenName, $platform, $tokenVersion) = explode('|', Crypt::decrypt($token));
+        return ['user_id' => $userId, 'token_name' => $tokenName, 'platform' => $platform, 'token_version' => $tokenVersion];
     }
 }

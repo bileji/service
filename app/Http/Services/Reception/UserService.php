@@ -103,4 +103,9 @@ class UserService
     {
         return $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
     }
+
+    public function getUser(array $token)
+    {
+
+    }
 }
