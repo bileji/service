@@ -26,7 +26,7 @@ class CreateUserTable extends Migration
 
             $table->tinyInteger('open_type')->default(0)->comment('Open类型: 0 unknown 1 QQ 2 Sina');
 
-            $table->string('nickname')->default('')->comment('昵称');
+            $table->string('nickname', 25)->default('')->comment('昵称');
 
             $table->string('password', 32)->default('')->comment('密码');
 
@@ -35,6 +35,8 @@ class CreateUserTable extends Migration
             $table->tinyInteger('sex')->default(0)->comment('性别: 0 未设置 1 男 2 女');
 
             $table->string('avatar', 100)->default('')->comment('头像');
+
+            $table->integer('area_id')->default(0)->comment('地区id');
 
             $table->string('sign_up_ip', 15)->default('')->comment('注册时IP');
 
