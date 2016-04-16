@@ -13,7 +13,8 @@
     "laravel/lumen-framework": "5.2.*",
     "vlucas/phpdotenv": "~2.2",
     "fguillot/json-rpc": "~1.0",
-    "illuminate/redis": "^5.2"
+    "illuminate/redis": "^5.2",
+    "overtrue/pinyin": "2.*"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
