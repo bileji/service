@@ -1,6 +1,6 @@
 <?php
 /**
- * this source file is User.php
+ * this source file is UserRedis.php
  *
  * author: shuc <shuc324@gmail.com>
  * time:   2016-04-16 21-29
@@ -9,12 +9,13 @@ namespace App\Models\Redis;
 
 use App\Enums\Version;
 use App\Models\Mysql\Area;
+use App\Models\Mysql\User;
 use Illuminate\Support\Facades\Redis;
 
-class User
+class UserRedis
 {
     # redis缓存用户字段
-    const CACHE_FIELDS = [
+    public static $cacheFields = [
         # 用户id
         'user_id'   => 0,
         # 用户名
@@ -61,11 +62,13 @@ class User
         if (!empty($user)) {
             $user['user_id'] = $user['id'];
             $user['origin'] = $user['open_type'];
-            if ($area = current(Area::select('name')->whereId($user['area_id'])->get())->toArray()) {
+//            empty($user['email']) && $user['email'] = '';
+//            empty($user['cellphone']) && $user['cellphone'] = '';
+            if ($area = current(Area::select('name')->whereId($user['area_id'])->get()->toArray())) {
                 $user['area_name'] = $area['name'];
             }
-            $userCache = array_intersect_key($user, static::CACHE_FIELDS);
-            return Redis::hmset($this->getUserCacheKey($user), $userCache) ? $userCache : false;
+            $userCache = array_intersect_key($user, static::$cacheFields);
+            return Redis::hmset($this->getUserCacheKey($user['id']), $userCache) ? $userCache : false;
         }
         return false;
     }
@@ -82,7 +85,7 @@ class User
         if (empty($userCache) || $tokenVersion != Version::TOKEN_VERSION) {
             $userCache = $this->setUser($userId);
             if (!empty($userCache)) {
-                $userCache = array_replace(static::CACHE_FIELDS, $userCache);
+                $userCache = array_replace(static::$cacheFields, $userCache);
             }
         }
         return $userCache;

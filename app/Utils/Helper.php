@@ -12,7 +12,7 @@ use App\Enums\UsernameType;
 use App\Enums\Version;
 use App\Http\Responses\Response;
 use App\Http\Responses\Status;
-use App\Models\Redis\Token;
+use App\Models\Redis\TokenRedis;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use JsonRPC\Server as RpcService;
@@ -50,7 +50,7 @@ class Helper
                 if ($key === 'token' && is_string($value) && $value == base64_encode(base64_decode($value))) {
                     $tokenInfo = static::tokenDecrypt($value);
                     if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'] && !empty($tokenInfo['token_version']))) {
-                        $tokenRedis = new Token();
+                        $tokenRedis = new TokenRedis();
                         $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
                         if (!empty($payload)) {
                             $request['params'][$key] = $payload;

@@ -15,8 +15,8 @@ use App\Models\Mysql\User;
 use App\Http\Responses\Status;
 use App\Http\Responses\Response;
 use Illuminate\Support\Str;
-use App\Models\Redis\Token as TokenRedis;
-use App\Models\Redis\User as UserRedis;
+use App\Models\Redis\TokenRedis;
+use App\Models\Redis\UserRedis;
 
 class UserService
 {

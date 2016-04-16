@@ -1,6 +1,6 @@
 <?php
 /**
- * this source file is Token.php
+ * this source file is TokenRedis.php
  *
  * author: shuc <shuc324@gmail.com>
  * time:   2016-04-11 17-39
@@ -12,7 +12,7 @@ use App\Utils\Helper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Redis;
 
-class Token
+class TokenRedis
 {
     # token名长度
     const TOKEN_NAME_LENGTH = 6;
