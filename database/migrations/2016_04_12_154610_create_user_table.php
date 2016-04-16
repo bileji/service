@@ -53,7 +53,7 @@ class CreateUserTable extends Migration
 
             $table->unique('cellphone');
 
-            $table->primary(['open_id', 'open_type']);
+            $table->index(['open_id', 'open_type']);
         });
     }
 
