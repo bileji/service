@@ -62,8 +62,8 @@ class UserRedis
         if (!empty($user)) {
             $user['user_id'] = $user['id'];
             $user['origin'] = $user['open_type'];
-//            empty($user['email']) && $user['email'] = '';
-//            empty($user['cellphone']) && $user['cellphone'] = '';
+            empty($user['email']) && $user['email'] = '';
+            empty($user['cellphone']) && $user['cellphone'] = '';
             if ($area = current(Area::select('name')->whereId($user['area_id'])->get()->toArray())) {
                 $user['area_name'] = $area['name'];
             }
