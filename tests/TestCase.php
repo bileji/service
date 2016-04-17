@@ -1,5 +1,7 @@
 <?php
 
+use JsonRPC\Client;
+
 class TestCase extends Laravel\Lumen\Testing\TestCase
 {
     /**
@@ -10,5 +12,11 @@ class TestCase extends Laravel\Lumen\Testing\TestCase
     public function createApplication()
     {
         return require __DIR__.'/../bootstrap/app.php';
+    }
+
+    public function rpc($route, $payload = [])
+    {
+        $client = new Client('http://192.168.99.100/' . $route);
+        return $client->execute($payload[0], $payload[1]);
     }
 }
