@@ -9,10 +9,17 @@ use Illuminate\Support\Str;
 
 class UserTest extends TestCase
 {
+    private $userInfo = [];
+
+    private function getUserInfo()
+    {
+        return $this->userInfo = ['username' => Str::random(8), 'password' => 123456];
+    }
+
     public function testSignUp()
     {
-        $username = Str::random(8);
-        $response = $this->rpc('rpc/v1.0/reception/user', ['signUp', ['username' => $username, 'password' => 123456, 'extension' => ['sex' => 1, 'sign_up_ip' => '192.168.22.14', 'sign_up_platform' => 1]]]);
+        $userInfo = $this->getUserInfo();
+        $response = $this->rpc('rpc/v1.0/reception/user', ['signUp', ['username' => $userInfo['username'], 'password' => $userInfo['password'], 'extension' => ['sex' => 1, 'sign_up_ip' => '192.168.22.14', 'sign_up_platform' => 1]]]);
 
         $response = json_decode($response, true);
         $this->assertEquals($response['code'], 0);
