@@ -19,6 +19,7 @@ class Status
 
     const TOKEN_OUT_OF_TIME = 200000;
     const TOKE_SIGN_IN_OTHER_DEVICE = 200010;
+    const TOKEN_ABNORMAL = 200020;
 
     const RPC_PARAM_STRICT = 300000;
 
@@ -36,8 +37,9 @@ class Status
         # Token相关
         self::TOKEN_OUT_OF_TIME         => '无效的登录信息',
         self::TOKE_SIGN_IN_OTHER_DEVICE => '其它设备登录',
+        self::TOKEN_ABNORMAL            => '异常的登录信息',
 
         # Rpc相关
-        self::RPC_PARAM_STRICT => '请使用严格传参模式',
+        self::RPC_PARAM_STRICT          => '请使用严格传参模式',
     ];
 }

@@ -115,7 +115,6 @@ class TokenRedis
      */
     public function getLastTokenPayload($userId, $platform = Platform::WEB)
     {
-        $payload = [];
         $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
         $userTokenName = $this->getUserTokenName($userId, $prefix);
         $userAllTokenName = Redis::lrange($userTokenName, 0, -1);
@@ -128,6 +127,6 @@ class TokenRedis
                 }
             }
         }
-        return $payload;
+        return !empty($payload) ? $payload : [];
     }
 }

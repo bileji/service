@@ -38,7 +38,7 @@ class UserService
     public function signUp($username, $password, $extension = [])
     {
         $userInfo = [];
-        switch(Helper::checkUsernameType($username)) {
+        switch (Helper::checkUsernameType($username)) {
             case UsernameType::PHONE:
                 $userInfo['cellphone'] = $username;
                 break;
@@ -99,20 +99,30 @@ class UserService
     /**
      * 用户退出
      * @param array $token token信息
+     * @param string $platform 平台
      * @return bool
      */
-    public function signOut(array $token)
+    public function signOut(array $token, $platform = Platform::WEB)
     {
-        return $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
+        if ($token['platform'] != $platform) {
+            return Response::out(Status::TOKEN_ABNORMAL);
+        }
+        $status = $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
+        return $status ? Response::out(Status::SUCCESS) : Response::out(Status::FAILED);
     }
 
     /**
      * 取得用户信息
      * @param array $token token信息
+     * @param string $platform 平台
      * @return array|bool
      */
-    public function getUser(array $token)
+    public function getUser(array $token, $platform = Platform::WEB)
     {
-        return $this->userRedis->getUser($token['user_id'], Version::TOKEN_VERSION);
+        if ($token['platform'] != $platform) {
+            return Response::out(Status::TOKEN_ABNORMAL);
+        }
+        $user = $this->userRedis->getUser($token['user_id'], Version::TOKEN_VERSION);
+        return Response::out(Status::SUCCESS, ['user' => $user]);
     }
 }

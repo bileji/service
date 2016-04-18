@@ -57,9 +57,7 @@ class UserRedis
      */
     public function setUser($userId)
     {
-        $user = current(User::select('id', 'cellphone', 'username', 'email', 'sex', 'open_type', 'open_id', 'avatar', 'area_id')->whereId($userId)->get()->toArray());
-
-        if (!empty($user)) {
+        if ($user = current(User::select('id', 'cellphone', 'username', 'email', 'sex', 'open_type', 'open_id', 'avatar', 'area_id')->whereId($userId)->get()->toArray())) {
             $user['user_id'] = $user['id'];
             $user['origin'] = $user['open_type'];
             empty($user['email']) && $user['email'] = '';
@@ -67,7 +65,7 @@ class UserRedis
             if ($area = current(Area::select('name')->whereId($user['area_id'])->get()->toArray())) {
                 $user['area_name'] = $area['name'];
             }
-            $userCache = array_intersect_key($user, static::$cacheFields);
+            $userCache = array_replace(static::$cacheFields, array_intersect_key($user, static::$cacheFields));
             return Redis::hmset($this->getUserCacheKey($user['id']), $userCache) ? $userCache : false;
         }
         return false;
@@ -84,9 +82,6 @@ class UserRedis
         $userCache = Redis::hgetall($this->getUserCacheKey($userId));
         if (empty($userCache) || $tokenVersion != Version::TOKEN_VERSION) {
             $userCache = $this->setUser($userId);
-            if (!empty($userCache)) {
-                $userCache = array_replace(static::$cacheFields, $userCache);
-            }
         }
         return $userCache;
     }
