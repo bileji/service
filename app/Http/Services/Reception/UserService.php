@@ -79,6 +79,7 @@ class UserService
             case UsernameType::EMAIL:
                 $user = current(User::select('id', 'password', 'salt')->whereEmail($username)->get()->toArray());
                 break;
+            // todo 第三方登录
             default:
                 $user = current(User::select('id', 'password', 'salt')->whereUsername($username)->get()->toArray());
         }
