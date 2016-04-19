@@ -23,6 +23,8 @@ class Helper
 
     const TOKEN_PAYLOAD = 200;
 
+    const PLATFORM_ABNORMAL = 300;
+
     /**
      * 时间(耗秒级)
      * @return mixed
@@ -50,6 +52,10 @@ class Helper
                 if ($key === 'token' && is_string($value) && $value == base64_encode(base64_decode($value))) {
                     $tokenInfo = static::tokenDecrypt($value);
                     if (!empty($tokenInfo['user_id']) && !empty($tokenInfo['token_name']) && !empty($tokenInfo['platform'] && !empty($tokenInfo['token_version']))) {
+                        if (!empty($request['params']['platform']) && $tokenInfo['platform'] != $request['params']['platform']) {
+                            throw new \Exception(json_encode([]), static::PLATFORM_ABNORMAL);
+                        }
+                        unset($request['params']['platform']);
                         $tokenRedis = new TokenRedis();
                         $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
                         if (!empty($payload)) {
@@ -85,6 +91,8 @@ class Helper
             $payload = json_decode($e->getMessage(), true);
             if ($e->getCode() == static::PARAM_STRICT) {
                 $response = Response::out(Status::RPC_PARAM_STRICT);
+            } else if ($e->getCode() == static::PLATFORM_ABNORMAL) {
+                $response = Response::out(Status::TOKEN_ABNORMAL);
             } else {
                 if (!empty($payload)) {
                     $response = Response::out(Status::TOKE_SIGN_IN_OTHER_DEVICE);
@@ -96,7 +104,9 @@ class Helper
         }
         try {
             $rpcService->attach($service);
-            return $rpcService->execute();
+            $response = $rpcService->execute();
+            Log::info($response);
+            return $response;
         } catch (\Exception $e) {
             Log::emerg('service throw exception: ' . $e->getMessage() . ', file: ' . $e->getFile() . ' +' . $e->getLine());
             return $rpcService->getResponse(['result' => Response::out(Status::FAILED)], json_decode($rpcRequest, true));

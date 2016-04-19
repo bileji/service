@@ -100,14 +100,10 @@ class UserService
     /**
      * 用户退出
      * @param array $token token信息
-     * @param string $platform 平台
      * @return bool
      */
-    public function signOut(array $token, $platform = Platform::WEB)
+    public function signOut(array $token)
     {
-        if ($token['platform'] != $platform) {
-            return Response::out(Status::TOKEN_ABNORMAL);
-        }
         $status = $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
         return $status ? Response::out(Status::SUCCESS) : Response::out(Status::FAILED);
     }
@@ -115,14 +111,10 @@ class UserService
     /**
      * 取得用户信息
      * @param array $token token信息
-     * @param string $platform 平台
      * @return array|bool
      */
-    public function getUser(array $token, $platform = Platform::WEB)
+    public function getUser(array $token)
     {
-        if ($token['platform'] != $platform) {
-            return Response::out(Status::TOKEN_ABNORMAL);
-        }
         $user = $this->userRedis->getUser($token['user_id'], Version::TOKEN_VERSION);
         return Response::out(Status::SUCCESS, ['user' => $user]);
     }

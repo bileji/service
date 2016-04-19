@@ -48,6 +48,16 @@ class UserTest extends TestCase
         $this->assertEquals($response['data']['user']['username'], $this->userInfo['username']);
     }
 
+    public function testTokenAbnormal()
+    {
+        $user = $this->testSignUp();
+
+        $response = $this->rpc('rpc/v1.0/reception/user', ['getUser', ['token' => $user['data']['token'], 'platform' => Platform::APP]]);
+
+        $response = json_decode($response, true);
+        $this->assertEquals($response['code'], Status::TOKEN_ABNORMAL);
+    }
+
     public function testSignOut()
     {
         $user = $this->testSignUp();
