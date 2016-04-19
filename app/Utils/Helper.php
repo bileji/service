@@ -60,6 +60,7 @@ class Helper
                         $payload = $tokenRedis->getTokenPayload($tokenInfo['user_id'], $tokenInfo['token_name'], $tokenInfo['platform']);
                         if (!empty($payload)) {
                             $request['params'][$key] = $payload;
+                            $tokenRedis->extendTokenLife($payload);
                         } else {
                             $otherPayload = $tokenRedis->getLastTokenPayload($tokenInfo['user_id'], $tokenInfo['platform']);
                             throw new \Exception(json_encode($otherPayload), static::TOKEN_PAYLOAD);

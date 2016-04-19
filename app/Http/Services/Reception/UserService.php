@@ -7,7 +7,6 @@
  */
 namespace App\Http\Services\Reception;
 
-use App\Enums\Version;
 use App\Utils\Helper;
 use App\Enums\Platform;
 use App\Enums\UsernameType;
@@ -100,7 +99,7 @@ class UserService
     /**
      * 用户退出
      * @param array $token token信息
-     * @return bool
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function signOut(array $token)
     {
@@ -111,11 +110,33 @@ class UserService
     /**
      * 取得用户信息
      * @param array $token token信息
-     * @return array|bool
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getUser(array $token)
     {
-        $user = $this->userRedis->getUser($token['user_id'], Version::TOKEN_VERSION);
-        return Response::out(Status::SUCCESS, ['user' => $user]);
+        if ($user = $this->userRedis->getUser($token['user_id'])) {
+            return Response::out(Status::SUCCESS, ['user' => $user]);
+        } else {
+            return Response::out(Status::FAILED);
+        }
+    }
+
+    /**
+     * 完善个人资料
+     * @param array $token token信息
+     * @param array $profile 个人资料
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function perfectionProfile(array $token, array $profile)
+    {
+        // todo 严格的字段验证
+        $profile = array_intersect_key($profile, User::$contrast);
+        $affect = User::whereId($token['user_id'])->update($profile);
+        if ($affect) {
+            if ($this->userRedis->setUser($token['user_id'])) {
+                return $this->getUser($token);
+            }
+        }
+        return Response::out(Status::FAILED);
     }
 }

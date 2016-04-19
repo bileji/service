@@ -57,7 +57,7 @@ class UserRedis
      */
     public function setUser($userId)
     {
-        if ($user = current(User::select('id', 'cellphone', 'username', 'email', 'sex', 'open_type', 'open_id', 'avatar', 'area_id')->whereId($userId)->get()->toArray())) {
+        if ($user = current(User::select('id', 'cellphone', 'username', 'nickname', 'email', 'sex', 'open_type', 'open_id', 'avatar', 'area_id')->whereId($userId)->get()->toArray())) {
             $user['user_id'] = $user['id'];
             $user['origin'] = $user['open_type'];
             empty($user['email']) && $user['email'] = '';
@@ -77,7 +77,7 @@ class UserRedis
      * @param string $tokenVersion token版本号
      * @return array|bool
      */
-    public function getUser($userId, $tokenVersion)
+    public function getUser($userId, $tokenVersion = Version::TOKEN_VERSION)
     {
         $userCache = Redis::hgetall($this->getUserCacheKey($userId));
         if (empty($userCache) || $tokenVersion != Version::TOKEN_VERSION) {

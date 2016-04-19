@@ -67,4 +67,14 @@ class UserTest extends TestCase
         $response = json_decode($response, true);
         $this->assertEquals($response['code'], Status::SUCCESS);
     }
+
+    public function testPerfectionProfile()
+    {
+        $user = $this->testSignUp();
+
+        $profile = ['nickname' => 'only you'];
+        $response = $this->rpc('rpc/v1.0/reception/user', ['perfectionProfile', ['token' => $user['data']['token'], 'profile' => $profile, 'platform' => Platform::WEB]]);
+        $response = json_decode($response, true);
+        $this->assertEquals($response['data']['user']['nickname'], $profile['nickname']);
+    }
 }

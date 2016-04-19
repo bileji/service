@@ -38,6 +38,16 @@ class TokenRedis
         return str_replace('user', $userId, $prefix) . $tokenName;
     }
 
+    private function getRedisTokenPrefix($platform = Platform::WEB)
+    {
+        return $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
+    }
+
+    private function getSignInLimit($platform = Platform::WEB)
+    {
+        return $platform == Platform::WEB ? static::WEB_ALLOW_SIGN_IN_USER_NUM : static::APP_ALLOW_SIGN_IN_USER_NUM;
+    }
+
     /**
      * 存token
      * @param array $payload ['user_id' => 123456] token信息
@@ -50,13 +60,8 @@ class TokenRedis
         $payload['platform'] = $platform;
         $payload['sign_in_time'] = Helper::microTime();
 
-        if ($platform == Platform::WEB) {
-            $prefix = static::WEB_TOKEN_REDIS_PREFIX;
-            $signInLimit = static::WEB_ALLOW_SIGN_IN_USER_NUM;
-        } else {
-            $prefix = static::APP_TOKEN_REDIS_PREFIX;
-            $signInLimit = static::APP_ALLOW_SIGN_IN_USER_NUM;
-        }
+        $prefix = $this->getRedisTokenPrefix($platform);
+        $signInLimit = $this->getSignInLimit($platform);
 
         $userTokenName = $this->getUserTokenName($payload['user_id'], $prefix);
         $tokenTrueName = $this->getTokenTrueName($payload['user_id'], $tokenName, $prefix);
@@ -72,6 +77,18 @@ class TokenRedis
             }
         }
         return false;
+    }
+
+    /**
+     * 延长token寿命
+     * @param array $payload
+     * @return bool
+     */
+    public function extendTokenLife(array $payload)
+    {
+        $prefix = $this->getRedisTokenPrefix($payload['platform']);
+        $tokenTrueName = $this->getTokenTrueName($payload['user_id'], $payload['token_name'], $prefix);
+        return Redis::expire($tokenTrueName, static::TOKEN_LIVE_TIME) ? true : false;
     }
 
     /**
