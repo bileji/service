@@ -10,9 +10,8 @@ namespace App\Models\Redis;
 use App\Enums\Platform;
 use App\Utils\Helper;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Redis;
 
-class TokenRedis
+class TokenRedis extends BaseRedis
 {
     # token名长度
     const TOKEN_NAME_LENGTH = 6;
@@ -66,12 +65,12 @@ class TokenRedis
         $userTokenName = $this->getUserTokenName($payload['user_id'], $prefix);
         $tokenTrueName = $this->getTokenTrueName($payload['user_id'], $tokenName, $prefix);
 
-        if (Redis::lpush($userTokenName, $tokenTrueName)) {
-            if (Redis::hmset($tokenTrueName, $payload) && Redis::expire($tokenTrueName, static::TOKEN_LIVE_TIME)) {
+        if ($this->redis->lpush($userTokenName, $tokenTrueName)) {
+            if ($this->redis->hmset($tokenTrueName, $payload) && $this->redis->expire($tokenTrueName, static::TOKEN_LIVE_TIME)) {
                 # 平台同时登录人数限制
-                if (Redis::llen($userTokenName) > $signInLimit) {
-                    $popTokenName = Redis::rpop($userTokenName);
-                    Redis::del($popTokenName);
+                if ($this->redis->llen($userTokenName) > $signInLimit) {
+                    $popTokenName = $this->redis->rpop($userTokenName);
+                    $this->redis->del($popTokenName);
                 }
                 return Helper::tokenEncrypt($tokenName, $payload['user_id'], $platform);
             }
@@ -88,7 +87,7 @@ class TokenRedis
     {
         $prefix = $this->getRedisTokenPrefix($payload['platform']);
         $tokenTrueName = $this->getTokenTrueName($payload['user_id'], $payload['token_name'], $prefix);
-        return Redis::expire($tokenTrueName, static::TOKEN_LIVE_TIME) ? true : false;
+        return $this->redis->expire($tokenTrueName, static::TOKEN_LIVE_TIME) ? true : false;
     }
 
     /**
@@ -103,7 +102,7 @@ class TokenRedis
         $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
         $userTokenName = $this->getUserTokenName($userId, $prefix);
         $tokenTrueName = $this->getTokenTrueName($userId, $tokenName, $prefix);
-        return Redis::del($tokenTrueName) ? (boolean)Redis::lrem($userTokenName, 0, $tokenTrueName) : false;
+        return $this->redis->del($tokenTrueName) ? (boolean)$this->redis->lrem($userTokenName, 0, $tokenTrueName) : false;
     }
 
     /**
@@ -118,8 +117,8 @@ class TokenRedis
         $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
         $userTokenName = $this->getUserTokenName($userId, $prefix);
         $tokenTrueName = $this->getTokenTrueName($userId, $tokenName, $prefix);
-        $userAllTokenName = Redis::lrange($userTokenName, 0, -1);
-        $payload = !empty($userAllTokenName) && in_array($tokenTrueName, $userAllTokenName) ? Redis::hgetall($tokenTrueName) : [];
+        $userAllTokenName = $this->redis->lrange($userTokenName, 0, -1);
+        $payload = !empty($userAllTokenName) && in_array($tokenTrueName, $userAllTokenName) ? $this->redis->hgetall($tokenTrueName) : [];
         !empty($payload) && $payload['token_name'] = $tokenName;
         return !empty($payload) ? $payload : [];
     }
@@ -134,10 +133,10 @@ class TokenRedis
     {
         $prefix = $platform == Platform::WEB ? static::WEB_TOKEN_REDIS_PREFIX : static::APP_TOKEN_REDIS_PREFIX;
         $userTokenName = $this->getUserTokenName($userId, $prefix);
-        $userAllTokenName = Redis::lrange($userTokenName, 0, -1);
+        $userAllTokenName = $this->redis->lrange($userTokenName, 0, -1);
         if (!empty($userAllTokenName) && $userAllTokenName) {
             foreach ($userAllTokenName as $tokenTrueName) {
-                if ($payload = Redis::hgetall($tokenTrueName) && !empty($payload)) {
+                if ($payload = $this->redis->hgetall($tokenTrueName) && !empty($payload)) {
                     $tokenNamePieces = explode(':', $tokenTrueName);
                     $payload['token_name'] = array_pop($tokenNamePieces);
                     return $payload;

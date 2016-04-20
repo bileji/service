@@ -10,9 +10,8 @@ namespace App\Models\Redis;
 use App\Enums\Version;
 use App\Models\Mysql\Area;
 use App\Models\Mysql\User;
-use Illuminate\Support\Facades\Redis;
 
-class UserRedis
+class UserRedis extends BaseRedis
 {
     # redis缓存用户字段
     public static $cacheFields = [
@@ -66,7 +65,7 @@ class UserRedis
                 $user['area_name'] = $area['name'];
             }
             $userCache = array_replace(static::$cacheFields, array_intersect_key($user, static::$cacheFields));
-            return Redis::hmset($this->getUserCacheKey($user['id']), $userCache) ? $userCache : false;
+            return $this->redis->hmset($this->getUserCacheKey($user['id']), $userCache) ? $userCache : false;
         }
         return false;
     }
@@ -79,7 +78,7 @@ class UserRedis
      */
     public function getUser($userId, $tokenVersion = Version::TOKEN_VERSION)
     {
-        $userCache = Redis::hgetall($this->getUserCacheKey($userId));
+        $userCache = $this->redis->hgetall($this->getUserCacheKey($userId));
         if (empty($userCache) || $tokenVersion != Version::TOKEN_VERSION) {
             $userCache = $this->setUser($userId);
         }
