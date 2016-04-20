@@ -14,4 +14,8 @@ class Platform
     const WEB = 'web';
 
     const APP = 'app';
+
+    const ANDROID = 'android';
+
+    const IPHONE = 'iphone';
 }

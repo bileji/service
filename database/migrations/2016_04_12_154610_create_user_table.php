@@ -39,9 +39,9 @@ class CreateUserTable extends Migration
 
             $table->integer('area_id')->default(0)->comment('地区id');
 
-            $table->string('sign_up_ip', 15)->default('')->comment('注册时IP');
+            $table->string('sign_up_ip', 15)->default('0.0.0.0')->comment('注册时IP');
 
-            $table->tinyInteger('sign_up_platform')->unsigned()->default(0)->comment('注册平台: 0 unknown 1 web 2 ios 3 android');
+            $table->string('sign_up_platform', 10)->default('unknown')->comment('注册平台: unknown web iphone android');
 
             $table->timestamp('created_at')->default('00-00-00 00:00:00')->comment('创建时间');
 

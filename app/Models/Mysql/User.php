@@ -21,7 +21,7 @@ class User extends Base
         'email'            => 'string',
         'sign_up_ip'       => 'string',
         'area_id'          => 'int',
-        'sign_up_platform' => 'int',
+        'sign_up_platform' => 'string',
     ];
 
     // 输出格式
@@ -39,7 +39,7 @@ class User extends Base
         'email'            => 'string',
         'sign_up_ip'       => 'string',
         'area_id'          => 'int',
-        'sign_up_platform' => 'int',
+        'sign_up_platform' => 'string',
         'created_at'       => 'string',
         'updated_at'       => 'string',
         'deleted_at'       => 'string',
