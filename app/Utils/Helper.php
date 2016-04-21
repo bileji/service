@@ -165,4 +165,14 @@ class Helper
         list($userId, $tokenName, $platform, $tokenVersion) = explode('|', Crypt::decrypt($token));
         return ['user_id' => $userId, 'token_name' => $tokenName, 'platform' => $platform, 'token_version' => $tokenVersion];
     }
+
+    /**
+     * 唯一串
+     * @param string $prefix 前缀
+     * @return string
+     */
+    public static function unique($prefix = '')
+    {
+        return md5(uniqid($prefix, true));
+    }
 }
