@@ -12,7 +12,7 @@ use App\Http\Services\Reception\UserService;
 use App\Http\Services\Helper\QiniuService;
 
 $app->get('/', function () use ($app) {
-    return response(Response::out(Status::SUCCESS, ['site' => 'bileji service!']));
+    return Response::out(Status::SUCCESS, ['site' => 'bileji service!']);
 });
 
 # 1.0 版前台rpc service
