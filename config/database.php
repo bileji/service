@@ -8,10 +8,10 @@ return [
         'default' => [
             'driver' => 'mysql',
             'read' => [
-                'host' => env('DB_HOST', '192.168.99.100'),
+                'host' => env('DB_HOST', '127.0.0.1'),
             ],
             'write' => [
-                'host' => env('DB_HOST', '192.168.99.100'),
+                'host' => env('DB_HOST', '127.0.0.1'),
             ],
             'database' => env('DB_DATABASE', 'bileji'),
             'username' => env('DB_USERNAME', 'root'),
@@ -26,7 +26,7 @@ return [
     'redis' => [
         'cluster' => false,
         'default' => [
-            'host' => env('REDIS_HOST', '192.168.99.100'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
             'port' => env('REDIS_PORT', 6379),
             'timeout' => 10,
             'database' => 0,
