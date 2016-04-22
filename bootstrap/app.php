@@ -24,6 +24,8 @@ $app = new Laravel\Lumen\Application(
 );
 
 // 设置配置文件
+$app->configure('rpc');
+$app->configure('qiniu');
 $app->configure('database');
 
 $app->withFacades();
