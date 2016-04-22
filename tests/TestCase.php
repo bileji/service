@@ -16,7 +16,7 @@ class TestCase extends Laravel\Lumen\Testing\TestCase
 
     public function rpc($route, $payload = [])
     {
-        $client = new Client('http://192.168.99.100/' . $route);
+        $client = new Client(config('rpc.host') . $route);
         return $client->execute($payload[0], $payload[1]);
     }
 }
