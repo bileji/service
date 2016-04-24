@@ -7,6 +7,6 @@
  */
 return [
     'service' => [
-        'host' => env('RPC_HOST', 'http://127.0.0.1/')
+        'host' => env('RPC_HOST', 'http://service.bileji.com/')
     ]
 ];
