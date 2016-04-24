@@ -6,5 +6,7 @@
  * time:   2016-04-22 14-42
  */
 return [
-    'host' => env('RPC_HOST', 'http://127.0.0.1/')
+    'service' => [
+        'host' => env('RPC_HOST', 'http://127.0.0.1/')
+    ]
 ];
