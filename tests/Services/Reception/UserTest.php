@@ -13,18 +13,15 @@ class UserTest extends BootCase
 {
     public function testSignUp()
     {
-        $userInfo = $this->getUserInfo();
+        $userInfo = $this->initUserInfo();
         $response = $this->rpc('rpc/v1.0/reception/user', ['signUp', ['username' => $userInfo['username'], 'password' => $userInfo['password'], 'extension' => ['sex' => 1, 'sign_up_ip' => '192.168.22.14', 'sign_up_platform' => Platform::WEB]]]);
 
         $response = json_decode($response, true);
         $this->assertEquals($response['code'], Status::SUCCESS);
-        return $response;
     }
 
     public function testSignIn()
     {
-        $this->testSignUp();
-
         $response = $this->rpc('rpc/v1.0/reception/user', ['signIn', ['username' => $this->userInfo['username'], 'password' => $this->userInfo['password'], 'platform' => Platform::WEB]]);
 
         $response = json_decode($response, true);
@@ -33,9 +30,7 @@ class UserTest extends BootCase
 
     public function testGetUser()
     {
-        $user = $this->testSignUp();
-
-        $response = $this->rpc('rpc/v1.0/reception/user', ['getUser', ['token' => $user['data']['token'], 'platform' => Platform::WEB]]);
+        $response = $this->rpc('rpc/v1.0/reception/user', ['getUser', ['token' => $this->user['data']['token'], 'platform' => Platform::WEB]]);
 
         $response = json_decode($response, true);
         $this->assertEquals($response['data']['user']['username'], $this->userInfo['username']);
@@ -43,9 +38,7 @@ class UserTest extends BootCase
 
     public function testTokenAbnormal()
     {
-        $user = $this->testSignUp();
-
-        $response = $this->rpc('rpc/v1.0/reception/user', ['getUser', ['token' => $user['data']['token'], 'platform' => Platform::APP]]);
+        $response = $this->rpc('rpc/v1.0/reception/user', ['getUser', ['token' => $this->user['data']['token'], 'platform' => Platform::APP]]);
 
         $response = json_decode($response, true);
         $this->assertEquals($response['code'], Status::TOKEN_ABNORMAL);
@@ -53,9 +46,7 @@ class UserTest extends BootCase
 
     public function testSignOut()
     {
-        $user = $this->testSignUp();
-
-        $response = $this->rpc('rpc/v1.0/reception/user', ['signOut', ['token' => $user['data']['token'], 'platform' => Platform::WEB]]);
+        $response = $this->rpc('rpc/v1.0/reception/user', ['signOut', ['token' => $this->user['data']['token'], 'platform' => Platform::WEB]]);
 
         $response = json_decode($response, true);
         $this->assertEquals($response['code'], Status::SUCCESS);
@@ -63,10 +54,8 @@ class UserTest extends BootCase
 
     public function testPerfectionProfile()
     {
-        $user = $this->testSignUp();
-
         $profile = ['nickname' => 'only you'];
-        $response = $this->rpc('rpc/v1.0/reception/user', ['perfectionProfile', ['token' => $user['data']['token'], 'profile' => $profile, 'platform' => Platform::WEB]]);
+        $response = $this->rpc('rpc/v1.0/reception/user', ['perfectionProfile', ['token' => $this->user['data']['token'], 'profile' => $profile, 'platform' => Platform::WEB]]);
         $response = json_decode($response, true);
         $this->assertEquals($response['data']['user']['nickname'], $profile['nickname']);
     }
