@@ -20,7 +20,7 @@ class QiniuService
      * @param $model
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getToken(array $token, $model)
+    public function token(array $token, $model)
     {
         # 允许上传的模块必须要有对应的回调处理方法
         if (!method_exists($this, $model)) {
@@ -40,5 +40,8 @@ class QiniuService
     }
 
     // todo 具体的执行方法
+    protected function message()
+    {
 
+    }
 }

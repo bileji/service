@@ -9,15 +9,8 @@ use App\Enums\Platform;
 use App\Http\Responses\Status;
 use Illuminate\Support\Str;
 
-class UserTest extends TestCase
+class UserTest extends BootCase
 {
-    private $userInfo = [];
-
-    private function getUserInfo()
-    {
-        return $this->userInfo = ['username' => Str::random(8), 'password' => 123456];
-    }
-
     public function testSignUp()
     {
         $userInfo = $this->getUserInfo();
