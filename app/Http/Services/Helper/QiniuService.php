@@ -29,18 +29,24 @@ class QiniuService
         $auth = new Auth(config('qiniu.access_key'), config('qiniu.secret_key'));
         $uploadToken = $auth->uploadToken(config('qiniu.bucket'));
         $unique = Helper::unique($model . $token['user_id']);
-        return Response::out(Status::SUCCESS, ['model' => $model, 'upload_token' => $uploadToken, 'unique' => $unique]);
+        return Response::out(Status::SUCCESS, ['model' => $model, 'bucket' => config('qiniu.bucket'), 'upload_token' => $uploadToken, 'unique' => $unique]);
     }
 
-    // todo 回调factory
-    public function callback()
+    /**
+     * 七牛上传文件成功后回调
+     * @param string $model 上传图片模块
+     * @param string $unique 唯一id
+     * @param string $filename 文件名
+     * @param $filesize
+     */
+    public function callback($model, $unique, $filename, $filesize)
     {
-
-        // todo call_user_func_array
+        method_exists($this, $model) && $this->$model($model, $unique, $filename, $filesize);
+        // todo add failed log
     }
 
     // todo 具体的执行方法
-    protected function message()
+    protected function message($unique, $filename, $filesize)
     {
 
     }
