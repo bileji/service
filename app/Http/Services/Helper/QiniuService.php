@@ -18,7 +18,7 @@ class QiniuService
      * 获取上传图片令牌
      * @param array $token token信息
      * @param $model
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Responses\Response
      */
     public function token(array $token, $model)
     {

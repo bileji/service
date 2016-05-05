@@ -32,7 +32,7 @@ class UserService
      * @param string|int $username 用户名
      * @param string $password 密码
      * @param array $extension 扩展信息[sing_up_platform => 1 ...]
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Responses\Response
      */
     public function signUp($username, $password, $extension = [])
     {
@@ -99,7 +99,7 @@ class UserService
     /**
      * 用户退出
      * @param array $token token信息
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Responses\Response
      */
     public function signOut(array $token)
     {
@@ -110,7 +110,7 @@ class UserService
     /**
      * 取得用户信息
      * @param array $token token信息
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Responses\Response
      */
     public function getUser(array $token)
     {
@@ -125,7 +125,7 @@ class UserService
      * 完善个人资料
      * @param array $token token信息
      * @param array $profile 个人资料
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \App\Http\Responses\Response
      */
     public function perfectionProfile(array $token, array $profile)
     {
