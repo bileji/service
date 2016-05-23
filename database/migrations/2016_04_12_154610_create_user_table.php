@@ -19,7 +19,7 @@ class CreateUserTable extends Migration
 
             $table->string('username', 15)->nullable()->comment('用户名');
 
-            $table->integer('cellphone')->nullable()->unsigned()->comment('手机号');
+            $table->string('cellphone', 11)->nullable()->comment('手机号');
 
             $table->string('email', 25)->nullable()->comment('邮箱');
 
