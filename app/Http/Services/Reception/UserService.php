@@ -53,7 +53,8 @@ class UserService
 
         $userInfo = array_intersect_key(array_merge($userInfo, $extension), User::$contrast);
 
-        Log::info(var_export($userInfo, true));
+        Log::info(var_export(array_merge($userInfo, $extension), true));
+        Log::info(var_export(User::$contrast, true));
 
         // 成功新增用户
         if (($user = User::create($userInfo)->toArray()) && !empty($user)) {
