@@ -11,7 +11,7 @@ return [
                 'host' => env('DB_HOST', '49.213.11.59'),
             ],
             'write' => [
-                'host' => env('DB_HOST', '49.213.11.59'),
+                'host' => '49.213.11.59',
             ],
             'database' => env('DB_DATABASE', 'bileji'),
             'username' => env('DB_USERNAME', 'root'),
