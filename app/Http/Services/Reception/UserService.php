@@ -37,7 +37,6 @@ class UserService
      */
     public function signUp($username, $password, $extension = [])
     {
-        $userInfo = [];
         switch (Helper::checkUsernameType($username)) {
             case UsernameType::PHONE:
                 $userInfo['cellphone'] = $username;
