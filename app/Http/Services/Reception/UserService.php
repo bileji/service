@@ -56,6 +56,7 @@ class UserService
         if (($user = User::create($userInfo)->toArray()) && !empty($user)) {
             $platform = isset($userInfo['sign_up_platform']) ? $userInfo['sign_up_platform'] : Platform::UNKNOWN;
             $token = $this->tokenRedis->saveToken(['user_id' => $user['id']], $platform);
+
             return Response::out(Status::SUCCESS, ['token' => $token]);
         }
 
@@ -104,6 +105,7 @@ class UserService
     public function signOut(array $token)
     {
         $status = $this->tokenRedis->removeToken($token['token_name'], $token['user_id'], $token['platform']);
+
         return $status ? Response::out(Status::SUCCESS) : Response::out(Status::FAILED);
     }
 
@@ -112,7 +114,7 @@ class UserService
      * @param array $token token信息
      * @return \App\Http\Responses\Response
      */
-    public function getUser(array $token)
+    public function getInformation(array $token)
     {
         if ($user = $this->userRedis->getUser($token['user_id'])) {
             return Response::out(Status::SUCCESS, ['user' => $user]);
@@ -122,12 +124,12 @@ class UserService
     }
 
     /**
-     * 完善个人资料
+     * 编辑个人资料
      * @param array $token token信息
      * @param array $profile 个人资料
      * @return \App\Http\Responses\Response
      */
-    public function perfectionProfile(array $token, array $profile)
+    public function editProfile(array $token, array $profile)
     {
         // todo 严格的字段验证
         $profile = array_intersect_key($profile, User::$contrast);
@@ -137,6 +139,7 @@ class UserService
                 return $this->getUser($token);
             }
         }
+
         return Response::out(Status::FAILED);
     }
 }
